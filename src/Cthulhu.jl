@@ -36,8 +36,22 @@ Base.@kwdef mutable struct CthulhuConfig
     inline_cost::Bool = false
     type_annotations::Bool = true
     annotate_source::Bool = true   # overrides optimize, although the current setting is preserved
+<<<<<<< HEAD
     inlay_types_vscode::Bool = true
     diagnostics_vscode::Bool = true
+=======
+    hide_inlay_types_vscode::Bool = false
+    hide_diagnostics_vscode::Bool = false
+<<<<<<< HEAD
+<<<<<<< HEAD
+    always_edit::Bool=false
+>>>>>>> e7dc921 (add a config option to always call [E]dit)
+=======
+    view_always::Bool = true # should be false
+>>>>>>> 43d03b6 (view_always)
+=======
+    jump_always::Bool = false
+>>>>>>> 04288c3 (Rename to jump always)
 end
 
 """
@@ -65,8 +79,28 @@ end
 - `inline_cost::Bool` Initial state of "inlining costs" toggle. Defaults to `false`.
 - `type_annotations::Bool` Initial state of "type annnotations" toggle. Defaults to `true`.
 - `annotate_source::Bool` Initial state of "Source". Defaults to `true`.
+<<<<<<< HEAD
 - `inlay_types_vscode::Bool` Initial state of "vscode: inlay types" toggle. Defaults to `true`
 - `hide_warn_diagnostics_vscode::Bool` Initial state of "Vscode: diagnostics" toggle. Defaults to `true`
+=======
+- `hide_inlay_types_vscode::Bool` Initial state of "vscode: hide inlay types" toggle. Defaults to `false`
+- `hide_warn_diagnostics_vscode::Bool` Initial state of "Vscode: hide diagnostics" toggle. Defaults to `false`
+<<<<<<< HEAD
+<<<<<<< HEAD
+- `always_edit::Bool` Initial state of "always edit" toggle. Defaults to `false`.
+<<<<<<< HEAD
+>>>>>>> e7dc921 (add a config option to always call [E]dit)
+=======
+=======
+- `view_always::Bool` Initial state of "always edit" toggle. Defaults to `false`.
+>>>>>>> 7656ee8 (view_always)
+>>>>>>> 43d03b6 (view_always)
+=======
+- `jump_always::Bool` Initial state of "jump to source in editor always" toggle. Defaults to `false`.
+>>>>>>> 04288c3 (Rename to jump always)
+=======
+- `jump_always::Bool` Initial state of "jump to source always" toggle. Defaults to `false`.
+>>>>>>> 543d60f (Fix bug and preserve focus in VSCode)
 """
 const CONFIG = CthulhuConfig()
 
@@ -388,10 +422,24 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
     remarks::Bool                            = CONFIG.remarks&!CONFIG.optimize,      # default is false
     with_effects::Bool                       = CONFIG.with_effects,                  # default is false
     inline_cost::Bool                        = CONFIG.inline_cost&CONFIG.optimize,   # default is false
+<<<<<<< HEAD
+<<<<<<< HEAD
     type_annotations::Bool                   = CONFIG.type_annotations,              # default is true
     annotate_source::Bool                    = CONFIG.annotate_source,               # default is true
     inlay_types_vscode::Bool                 = CONFIG.inlay_types_vscode,            # default is true
     diagnostics_vscode::Bool                 = CONFIG.diagnostics_vscode,            # default is true
+    always_edit::Bool                        = CONFIG.always_edit  
+=======
+    type_annotations::Bool                   = CONFIG.type_annotations,               # default is true
+    view_always::Bool                        = CONFIG.view_always  
+>>>>>>> 43d03b6 (view_always)
+=======
+    type_annotations::Bool                   = CONFIG.type_annotations,              # default is true
+    annotate_source::Bool                    = CONFIG.annotate_source,               # default is true
+    hide_inlay_types_vscode::Bool            = CONFIG.hide_inlay_types_vscode,       # default is false
+    hide_diagnostics_vscode::Bool            = CONFIG.hide_diagnostics_vscode,       # default is false
+    jump_always::Bool                        = CONFIG.jump_always                    # default is false
+>>>>>>> 04288c3 (Rename to jump always)
     )
 
     if isnothing(hide_type_stable)
@@ -462,7 +510,27 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
         else
             @assert length(src.code) == length(infos)
         end
+<<<<<<< HEAD
         callsites, sourcenodes = find_callsites(interp, src, infos, mi, slottypes, optimize & !annotate_source, annotate_source)
+=======
+        callsites, sourcenodes, tsn = find_callsites(interp, src, infos, mi, slottypes, optimize & !annotate_source, annotate_source)
+<<<<<<< HEAD
+<<<<<<< HEAD
+        view_always && edit(whereis(mi.def::Method)...)
+>>>>>>> 43d03b6 (view_always)
+=======
+        jump_always && edit(whereis(mi.def::Method)...)
+>>>>>>> 04288c3 (Rename to jump always)
+=======
+
+        if jump_always
+            if isdefined(Main, :VSCodeServer) && Main.VSCodeServer isa Module && isdefined(Main.VSCodeServer, :openfile)
+                Main.VSCodeServer.openfile(whereis(mi.def::Method)...; preserve_focus=true)
+            else
+                edit(whereis(mi.def::Method)...)
+            end
+        end
+>>>>>>> 543d60f (Fix bug and preserve focus in VSCode)
 
         if display_CI
             pc2remarks = remarks ? get_remarks(interp, override !== nothing ? override : mi) : nothing
@@ -481,8 +549,13 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
                         cthulhu_typed(lambda_io, debuginfo, annotate_source ? codeinf : src, rt, effects, mi;
                                       iswarn, optimize, hide_type_stable,
                                       pc2remarks, pc2effects,
+<<<<<<< HEAD
                                       inline_cost, type_annotations, annotate_source, inlay_types_vscode, diagnostics_vscode,
                                       interp)
+=======
+                                      inline_cost, type_annotations, annotate_source, hide_inlay_types_vscode, hide_diagnostics_vscode,
+                                      jump_always, interp, tsn)
+>>>>>>> 543d60f (Fix bug and preserve focus in VSCode)
                     end
                 end
                 # eliminate trailing indentation (see first item in bullet list in PR #189)
@@ -498,8 +571,13 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
                 cthulhu_typed(lambda_io, debuginfo, src, rt, effects, mi;
                               iswarn, optimize, hide_type_stable,
                               pc2remarks, pc2effects,
+<<<<<<< HEAD
                               inline_cost, type_annotations, annotate_source, inlay_types_vscode, diagnostics_vscode,
                               interp)
+=======
+                              inline_cost, type_annotations, annotate_source, hide_inlay_types_vscode, hide_diagnostics_vscode,
+                              jump_always, interp, tsn)
+>>>>>>> 543d60f (Fix bug and preserve focus in VSCode)
             end
             view_cmd = cthulhu_typed
         else
@@ -510,7 +588,15 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
 
         shown_callsites = annotate_source ? sourcenodes : callsites
         menu = CthulhuMenu(shown_callsites, with_effects, optimize & !annotate_source, iswarn&get(iostream, :color, false)::Bool, hide_type_stable, custom_toggles; menu_options...)
+<<<<<<< HEAD
+<<<<<<< HEAD
         usg = usage(view_cmd, annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, CONFIG.enable_highlighter, inlay_types_vscode, diagnostics_vscode, custom_toggles)
+=======
+        usg = usage(view_cmd, annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, CONFIG.enable_highlighter, hide_inlay_types_vscode, hide_diagnostics_vscode, view_always, custom_toggles)
+>>>>>>> 43d03b6 (view_always)
+=======
+        usg = usage(view_cmd, annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, CONFIG.enable_highlighter, hide_inlay_types_vscode, hide_diagnostics_vscode, jump_always, custom_toggles)
+>>>>>>> 04288c3 (Rename to jump always)
         cid = request(term, usg, menu)
         toggle = menu.toggle
 
@@ -599,7 +685,11 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
                      override = get_override(info), debuginfo,
                      optimize, interruptexc,
                      iswarn, hide_type_stable,
+<<<<<<< HEAD
                      remarks, with_effects, inline_cost, type_annotations, annotate_source, inlay_types_vscode, diagnostics_vscode)
+=======
+                     remarks, with_effects, inline_cost, type_annotations, annotate_source, hide_inlay_types_vscode, hide_diagnostics_vscode, jump_always)
+>>>>>>> 543d60f (Fix bug and preserve focus in VSCode)
 
         elseif toggle === :warn
             iswarn ⊻= true
@@ -644,6 +734,8 @@ function _descend(term::AbstractTerminal, interp::AbstractInterpreter, curs::Abs
                 @info "Turned off syntax highlighter for Julia, LLVM and native code."
             end
             display_CI = false
+        elseif toggle === :jump_always
+            jump_always ⊻= true
         elseif toggle === :dump_params
             @info "Dumping inference cache."
             Core.show(mapany(((i, x),) -> (i, x.result, x.linfo), enumerate(get_inference_cache(interp))))

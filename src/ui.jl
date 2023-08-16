@@ -92,7 +92,15 @@ function stringify(@nospecialize(f), context::IOContext)
 end
 
 const debugcolors = (:nothing, :light_black, :yellow)
-function usage(@nospecialize(view_cmd), annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, highlight, inlay_types_vscode, diagnostics_vscode,
+<<<<<<< HEAD
+<<<<<<< HEAD
+function usage(@nospecialize(view_cmd), annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, highlight, inlay_types_vscode, diagnostics_vscode, view_always
+=======
+function usage(@nospecialize(view_cmd), annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, highlight, jump_always, hide_inlay_types_vscode, hide_diagnostics_vscode,
+>>>>>>> 04288c3 (Rename to jump always)
+=======
+function usage(@nospecialize(view_cmd), annotate_source, optimize, iswarn, hide_type_stable, debuginfo, remarks, with_effects, inline_cost, type_annotations, highlight, hide_inlay_types_vscode, hide_diagnostics_vscode, jump_always,
+>>>>>>> 543d60f (Fix bug and preserve focus in VSCode)
     custom_toggles::Vector{CustomToggle})
     colorize(use_color::Bool, c::Char) = stringify() do io
         use_color ? printstyled(io, c; color=:cyan) : print(io, c)
@@ -106,7 +114,8 @@ function usage(@nospecialize(view_cmd), annotate_source, optimize, iswarn, hide_
         colorize(iswarn, 'w'), "]arn, [",
         colorize(hide_type_stable, 'h'), "]ide type-stable statements, [",
         colorize(type_annotations, 't'), "]ype annotations, [",
-        colorize(highlight, 's'), "]yntax highlight for Source/LLVM/Native")
+        colorize(highlight, 's'), "]yntax highlight for Source/LLVM/Native, [",
+        colorize(jump_always, 'j'), "]ump to source always"),
     if TypedSyntax.inlay_hints_available_vscode()
         print(ioctx, ", [",
         colorize(inlay_types_vscode, 'v'), "]scode: inlay types")
@@ -169,7 +178,8 @@ const TOGGLES = Dict(
     UInt32('R') => :revise,
     UInt32('E') => :edit,
     UInt32('v') => :inlay_types_vscode,
-    UInt32('V') => :diagnostics_vscode
+    UInt32('V') => :diagnostics_vscode,
+    UInt32('j') => :jump_always
 )
 
 function TerminalMenus.keypress(m::CthulhuMenu, key::UInt32)
