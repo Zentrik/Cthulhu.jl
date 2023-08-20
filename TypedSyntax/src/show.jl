@@ -94,12 +94,15 @@ function is_show_annotation(@nospecialize(T); type_annotations::Bool, hide_type_
     return isa(T, Type) && is_type_unstable(T)
 end
 
+get_inner_type(@nospecialize(x::Type{Type{T}})) where T = T
 function type_annotation_mode(node, @nospecialize(T); type_annotations::Bool, hide_type_stable::Bool)
     kind(node) == K"return" && return false, "", "", ""
     type_annotate = is_show_annotation(T; type_annotations, hide_type_stable)
     pre = pre2 = post = ""
     if type_annotate
-        if kind(node) ∈ KSet":: where" || is_infix_op_call(node) || (is_prec_assignment(node) && kind(node) != K"=")
+        if T <: Type && Symbol(get_inner_type(T)) === node.data.val
+            type_annotate = false
+        elseif kind(node) ∈ KSet":: where" || is_infix_op_call(node) || (is_prec_assignment(node) && kind(node) != K"=")
             pre, post = "(", ")"
         elseif is_prefix_op_call(node) # insert parens after prefix op and before type-annotating
             pre2, post = "(", ")"
